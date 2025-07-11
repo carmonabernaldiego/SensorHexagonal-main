@@ -1,0 +1,36 @@
+FAIL src/tests/Events/CreateEventUseCase.test.ts (5.11 s)
+  CreateEventUseCase
+    ✕ CP21 - Publica evento correctamente en topic MQTT (27 ms)
+    ✓ CP22 - Retorna evento aunque env no tenga topic definido (2 ms)
+
+  ● CreateEventUseCase › CP21 - Publica evento correctamente en topic MQTT
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 4
+
+    - ObjectContaining {
+    -   "visible": true,
+    + Event {
+    +   "IF": true,
+    +   "Uv": true,
+    +   "Visible": false,
+      }
+
+      13 |   test("CP21 - Publica evento correctamente en topic MQTT", async () => {
+      14 |     const result = await useCase.run(request);
+    > 15 |     expect(result).toEqual(expect.objectContaining({ visible: true }));
+         |                    ^
+      16 |     expect(mockPublisher.publish).toHaveBeenCalled();
+      17 |   });
+      18 |
+
+      at src/tests/Events/CreateEventUseCase.test.ts:15:20
+      at fulfilled (src/tests/Events/CreateEventUseCase.test.ts:5:58)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 passed, 2 total
+Snapshots:   0 total
+Time:        5.274 s
+Ran all test suites matching src/tests/Events/CreateEventUseCase.test.ts.
