@@ -1,3 +1,4 @@
 /node_modules
 /.env
 /src/example.ts
+mantenimiento-key.pem
