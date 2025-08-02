@@ -1,0 +1,51 @@
+name: Deploy NestJS to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            cd /home/ubuntu/SensorHexagonal-main
+            echo "Actualizando código..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Si usas env desde GitHub:
+            echo "${{ secrets.EC2_ENV_VARS }}" > .env
+
+            echo "🛠 Verificando lockfile..."
+            if ! cmp --silent yarn.lock /tmp/yarn.lock.bak 2>/dev/null; then
+              echo "Instalando dependencias..."
+              cp yarn.lock /tmp/yarn.lock.bak
+              yarn install --frozen-lockfile
+            else
+              echo "Dependencias sin cambios"
+            fi
+
+            echo "Compilando NestJS..."
+            yarn build
+
+            echo "Reiniciando con PM2..."
+            pm2 restart nest-app || pm2 start dist/main.js --name nest-app --env production
+
+            echo "Despliegue completado"
+          EOF
