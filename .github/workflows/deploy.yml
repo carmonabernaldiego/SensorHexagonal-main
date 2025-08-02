@@ -1,4 +1,4 @@
-name: Deploy NestJS to EC2
+name: Deploy SensorHexagonal to EC2
 
 on:
   push:
@@ -25,26 +25,27 @@ jobs:
             set -e
             cd /home/ubuntu/SensorHexagonal-main
 
-            echo "Actualizando código..."
+            echo "🔄 Sincronizando código..."
             git fetch origin main
             git reset --hard origin/main
 
+            # Si gestionas .env desde GitHub
             echo "${{ secrets.EC2_ENV_VARS }}" > .env
 
-            echo "🛠 Verificando lockfile..."
+            echo "📦 Verificando lockfile..."
             if ! cmp --silent yarn.lock /tmp/yarn.lock.bak 2>/dev/null; then
-              echo "Instalando dependencias..."
+              echo "📥 Instalando dependencias..."
               cp yarn.lock /tmp/yarn.lock.bak
               yarn install --frozen-lockfile
             else
-              echo "Dependencias sin cambios"
+              echo "✅ Dependencias sin cambios"
             fi
 
-            echo "Compilando NestJS..."
+            echo "🔨 Compilando TS..."
             yarn build
 
-            echo "Reiniciando con PM2..."
-            pm2 restart nest-app || pm2 start dist/main.js --name nest-app --env production
+            echo "🚀 Reiniciando con PM2..."
+            pm2 restart sensorhexagonal || pm2 start dist/App.js --name sensorhexagonal --env production
 
-            echo "Despliegue completado"
+            echo "✅ Despliegue OK"
           EOF
