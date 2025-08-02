@@ -2,8 +2,7 @@ name: Deploy NestJS to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
@@ -25,11 +24,11 @@ jobs:
           ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             set -e
             cd /home/ubuntu/SensorHexagonal-main
+
             echo "Actualizando código..."
             git fetch origin main
             git reset --hard origin/main
 
-            # Si usas env desde GitHub:
             echo "${{ secrets.EC2_ENV_VARS }}" > .env
 
             echo "🛠 Verificando lockfile..."
